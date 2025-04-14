@@ -1,9 +1,13 @@
 from langchain_community.tools import DuckDuckGoSearchResults
 from langchain_community.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
 import re
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 keyword = "<input_your_own_keyword/keywords>"
-os.environ['OPENAI_API_KEY'] = "<your_openai_api_key>"
+print(os.environ['OPENAI_API_KEY'])
+
 
 
 def get_links(keyword):
