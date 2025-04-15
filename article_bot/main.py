@@ -54,7 +54,7 @@ splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, ad
 splits = splitter.split_documents(docs)
 
 # Use Gemini-compatible embedding + retriever
-vector_store = Chroma.from_documents(documents=splits, embedding=GoogleGenerativeAIEmbeddings())
+vector_store = Chroma.from_documents(documents=splits, embedding=GoogleGenerativeAIEmbeddings(model="models/text-embedding-004"))
 retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 10})
 
 # Prompt template
