@@ -3,7 +3,7 @@ from langchain_community.utilities.duckduckgo_search import DuckDuckGoSearchAPIW
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -12,10 +12,10 @@ import re
 from dotenv import load_dotenv
 import os
 
-# Load environment variables (should contain GOOGLE_API_KEY)
 load_dotenv()
 keyword = "<input_your_own_keyword/keywords>"
-print(os.environ['GOOGLE_API_KEY'])
+print(os.environ['OPENAI_API_KEY'])
+
 
 
 def get_links(keyword):
@@ -25,46 +25,39 @@ def get_links(keyword):
 
     links = []
     parsed_links = re.findall(r'link:\s*(https?://[^\],\s]+)', results)
-
+    
     for link in parsed_links:
         links.append(link)
-
+        
     return links
-
 
 def save_file(content, filename):
     directory = "blogs"
-
+            
     if not os.path.exists(directory):
         os.makedirs(directory)
-
+    
     filepath = os.path.join(directory, filename)
 
     with open(filepath, 'w') as f:
         f.write(content)
         print(f" 🥳 File saved as {filepath}")
 
-
-# Load and process documents
 bs4_strainer = bs4.SoupStrainer(('p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'))
 document_loader = WebBaseLoader(web_path=(get_links(keyword)))
 docs = document_loader.load()
-
-splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, add_start_index=True)
+splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=200,add_start_index=True,)
 splits = splitter.split_documents(docs)
-
-# Use Gemini-compatible embedding + retriever
-vector_store = Chroma.from_documents(documents=splits, embedding=GoogleGenerativeAIEmbeddings(model="models/text-embedding-004"))
-retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 10})
-
-# Prompt template
+vector_store = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
+retriever = vector_store.as_retriever(search_type="similarity", search_kwards={"k": 10})
 template = """
 Given the following information, generate a blog post
 Write a full blog post that will rank for the following keywords: {keyword}
-
+                
 Instructions:
 The blog should be properly and beautifully formatted using markdown.
 The blog title should be SEO optimized.
+
 The blog title, should be crafted with the keyword in mind and should be catchy and engaging. But not overly expressive.
 Each sub-section should have at least 3 paragraphs.
 Each section should have at least three subsections.
@@ -81,13 +74,10 @@ Make the blog post sound as human and as engaging as possible, add real world ex
 You are a professional blog post writer and SEO expert.
 
 Context: {context}
-Blog:
+Blog: 
 """
-
+llm = ChatOpenAI()
 prompt = PromptTemplate.from_template(template=template)
-
-# Gemini LLM via LangChain
-llm = ChatGoogleGenerativeAI(model="gemini-pro")
 
 chain = (
     {"context": retriever | "".join(doc.page_content for doc in docs), "keyword": RunnablePassthrough()}
@@ -100,4 +90,4 @@ response = chain.invoke(input=keyword)
 
 print(response)
 
-save_file(content=response, filename=keyword + ".md")
+save_file(content=response, filename=keyword+".md")
