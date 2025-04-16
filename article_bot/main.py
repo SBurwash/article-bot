@@ -3,7 +3,8 @@ from langchain_community.utilities.duckduckgo_search import DuckDuckGoSearchAPIW
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+# from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -13,8 +14,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-keyword = "<input_your_own_keyword/keywords>"
-print(os.environ['OPENAI_API_KEY'])
+keyword = "Dota 2, League of Legends"
 
 
 
@@ -48,7 +48,7 @@ document_loader = WebBaseLoader(web_path=(get_links(keyword)))
 docs = document_loader.load()
 splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=200,add_start_index=True,)
 splits = splitter.split_documents(docs)
-vector_store = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
+vector_store = Chroma.from_documents(documents=splits, embedding=GoogleGenerativeAIEmbeddings(model="models/text-embedding-004"))
 retriever = vector_store.as_retriever(search_type="similarity", search_kwards={"k": 10})
 template = """
 Given the following information, generate a blog post
@@ -76,7 +76,7 @@ You are a professional blog post writer and SEO expert.
 Context: {context}
 Blog: 
 """
-llm = ChatOpenAI()
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-001")
 prompt = PromptTemplate.from_template(template=template)
 
 chain = (
