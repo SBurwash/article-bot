@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-keyword = "Dota 2, League of Legends"
+keyword = "Canadian election 2025"
 
 
 
