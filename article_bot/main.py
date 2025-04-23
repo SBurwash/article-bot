@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-keyword = "Canadian election 2025"
+keyword = "Trump, Tarrifs, Pandas"
 
 
 
