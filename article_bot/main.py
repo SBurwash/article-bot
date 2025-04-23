@@ -80,9 +80,13 @@ llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-001")
 prompt = PromptTemplate.from_template(template=template)
 # print("".join(doc.page_content for doc in docs))
 # print({"context": "".join(doc.page_content for doc in docs)})
+
+def format_docs(docs):
+    return "".join([d.page_content for d in docs])
+
 chain = (
     # {"context": retriever | "".join(doc.page_content for doc in docs), "keyword": RunnablePassthrough()}
-    {"context": lambda x: "".join(doc.page_content for doc in docs), "keyword": RunnablePassthrough()}
+    {"context": retriever | format_docs, "keyword": RunnablePassthrough()}
     | prompt
     | llm
     | StrOutputParser()
