@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-keyword = "Trump, Tarrifs, Pandas"
+keyword = "L'épicurisme - 50% épicure, 50% malaria"
 
 
 
@@ -57,6 +57,7 @@ Write a full blog post that will rank for the following keywords: {keyword}
 Instructions:
 The blog should be properly and beautifully formatted using markdown.
 The blog title should be SEO optimized.
+This article should be written in French.
 
 The blog title, should be crafted with the keyword in mind and should be catchy and engaging. But not overly expressive.
 Each sub-section should have at least 3 paragraphs.
